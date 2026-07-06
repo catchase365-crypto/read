@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChronosNex - 英语口语发音与流利度纯享训练</title>
+    <style>
+        /* 1. 静态流体背景配置 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .fluid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #161b22, #0d1117);
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.12;
+        }
+        .c-emerald  { top: -10%; left: -10%; width: max(40vw, 40vh); height: max(40vw, 40vh); background: #10b981; }
+        .c-violet   { top: -10%; right: -10%; width: max(45vw, 45vh); height: max(45vw, 45vh); background: #8b5cf6; }
+        .c-seablue  { bottom: -10%; left: -10%; width: max(50vw, 50vh); height: max(50vw, 50vh); background: #06b6d4; }
+        .c-magenta  { bottom: -10%; right: -10%; width: max(40vw, 40vh); height: max(40vw, 40vh); background: #ec4899; }
+        .c-yellow   { top: 40%; left: 40%; width: max(35vw, 35vh); height: max(35vw, 35vh); background: #f59e0b; }
+
+        /* 2. 磨砂玻璃容器 */
+        .glass-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background: rgba(22, 27, 34, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.6rem;
+            margin-bottom: 35px;
+            background: linear-gradient(45deg, #06b6d4, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        /* 3. 核心流式卡片 */
+        .sentence-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        /* 语调高级可视化背景画布 SVG */
+        .intonation-curve-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+            z-index: 0;
+        }
+
+        .intonation-path {
+            fill: none;
+            stroke: url(#curve-grad);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 3px rgba(6, 182, 212, 0.4));
+            transition: all 0.4s ease;
+        }
+
+        /* 统一的流动式文本级 */
+        .interactive-flow-zone {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end; 
+            row-gap: 36px;        
+            column-gap: 6px;
+            margin-bottom: 25px;
+            padding: 10px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 单词复合列组件：上下绑定 */
+        .word-column {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 悬浮在单词头顶的发音小诀窍 */
+        .pronunciation-tip {
+            font-size: 0.75rem;
+            color: #f59e0b;
+            text-align: center;
+            white-space: nowrap;
+            margin-bottom: 10px;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 1px 5px;
+            border-radius: 4px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            pointer-events: none;
+        }
+
+        /* 单词文本主体 */
+        .word-text {
+            font-size: 1.4rem;
+            letter-spacing: 0.5px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #c9d1d9;
+        }
+
+        .word-text:hover, .word-text.active-word {
+            background: rgba(6, 182, 212, 0.2);
+            color: #fff;
+            box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+        }
+
+        /* 发音重音与弱读样式 */
+        .stress {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .reduction {
+            color: #e6edf3;
+            opacity: 0.35;
+            font-size: 1.25rem;
+        }
+
+        /* 连读符号 */
+        .link-next::after {
+            content: "‿";
+            position: absolute;
+            right: -6px;
+            bottom: -6px;
+            color: #06b6d4;
+            font-size: 1.2rem;
+            font-weight: bold;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* 停顿控制组件 */
+        .pause-container {
+            display: inline-flex;
+            align-items: center;
+            height: 100%;
+            align-self: flex-end;
+            padding-bottom: 4px;
+            user-select: none;
+        }
+
+        .pause-short {
+            margin: 0 6px 0 2px;
+            color: #8b5cf6;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .pause-long {
+            margin: 0 12px 0 4px;
+            color: #ec4899;
+            font-weight: bold;
+            font-size: 1.3rem;
+            border-right: 2px dashed rgba(236, 72, 153, 0.4);
+            padding-right: 4px;
+        }
+
+        /* 单词发音细节固定舱（音标 + 口型解剖动效） */
+        .inspector-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(88, 166, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .inspector-hidden {
+            display: none !important;
+        }
+
+        .inspector-left {
+            flex: 1;
+        }
+
+        .inspector-word {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 4px;
+        }
+
+        .inspector-ipa {
+            font-family: "Lucida Sans Unicode", sans-serif;
+            font-size: 1.1rem;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .inspector-desc {
+            font-size: 0.85rem;
+            color: #8b949e;
+            line-height: 1.4;
+        }
+
+
+
+        /* 意译层 */
+        .translation-zone {
+            font-size: 0.95rem;
+            color: #8b949e;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 15px;
+            line-height: 1.5;
+        }
+
+        /* 控制按钮 */
+        .control-panel {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid #10b981;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #10b981;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-slow {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid #8b5cf6;
+        }
+        .btn-slow:hover {
+            background: #8b5cf6;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+        }
+
+        /* 数据输入区 */
+        .data-input-zone {
+            margin-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 5球联动静态流体背景 -->
+    <div class="fluid-bg">
+        <div class="circle c-emerald"></div>
+        <div class="circle c-violet"></div>
+        <div class="circle c-seablue"></div>
+        <div class="circle c-magenta"></div>
+        <div class="circle c-yellow"></div>
+    </div>
+
+    <div class="glass-container">
+        <h1>口语发音技巧与断句操练</h1>
+        
+        <!-- 核心动态面板 -->
+        <div id="training-board"></div>
+
+        <!-- 循环免代码载入入口 -->
+        <div class="data-input-zone">
+            <button class="btn" style="width: 100%; padding: 12px;" onclick="loadClipboardData()">📋 从剪贴板载入新发音课程 (免输代码)</button>
+        </div>
+    </div>
+
+    <script>
+        // 初始化精选演示数据
+        const defaultData = [
+            {
+                "id": 1,
+                "translation": "如果你不有意识地去改变意群停顿的方式，你读十遍也只是把同样的错误重复十遍而已。",
+                "words": [
+                    {"text": "If", "type": "reduction", "tip": "极弱极快", "link": true, "pause": "", "ipa": "/ɪf/", "mouth": "flat", "detail": "上下齿微咬下唇，快速滑向下一个词。"},
+                    {"text": "you", "type": "reduction", "tip": "弱读/ju/", "link": true, "pause": "", "ipa": "/ju/", "mouth": "rounded", "detail": "非重读，双唇收圆但极短促。"},
+                    {"text": "don't", "type": "stress", "tip": "t失去爆破", "link": false, "pause": "", "ipa": "/doʊnt/", "mouth": "closed", "detail": "舌尖顶住上齿龈准备发/t/，但不送气，直接憋住。"},
+                    {"text": "consciously", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ˈkɑːnʃəsli/", "mouth": "open", "detail": "重音在最前。/ʃ/音双唇微向前突出撅起。"},
+                    {"text": "change", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/tʃeɪndʒ/", "mouth": "open", "detail": "注意双元音/eɪ/饱满的滑动过程，尾音摩擦。"},
+                    {"text": "the", "type": "reduction", "tip": "弱读/ðə/", "link": false, "pause": "", "ipa": "/ðə/", "mouth": "flat", "detail": "舌尖必须试探性微吐、轻触上齿边缘。"},
+                    {"text": "way", "type": "stress", "tip": "w-j半元音连读", "link": true, "pause": "", "ipa": "/weɪ/", "mouth": "rounded", "detail": "双唇先收极小圆圈发/w/，无缝滑向下一个词。"},
+                    {"text": "you", "type": "reduction", "tip": "", "link": false, "pause": "", "ipa": "/ju/", "mouth": "rounded", "detail": "快速滑过。"},
+                    {"text": "pause,", "type": "stress", "tip": "留空换气", "link": false, "pause": "short", "ipa": "/pɔːz/", "mouth": "open", "detail": "双唇爆破后音落，短暂在这里划归一个意群。"},
+                    
+                    {"text": "reading", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ˈriːdɪŋ/", "mouth": "rounded", "detail": "发/r/时舌尖往后卷，双唇稍微撅起。"},
+                    {"text": "a", "type": "reduction", "tip": "弱读/ə/", "link": false, "pause": "", "ipa": "/ə/", "mouth": "flat", "detail": "嘴唇极度放松，发出极轻模糊的中央元音。"},
+                    {"text": "passage", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ˈpæsɪdʒ/", "mouth": "open", "detail": "梅花元音/æ/下巴拉开，嘴角两侧用力。"},
+                    {"text": "ten", "type": "stress", "tip": "n-t鼻音停顿", "link": false, "pause": "", "ipa": "/ten/", "mouth": "flat", "detail": "舌尖大面积贴住上齿龈，给鼻音收尾准备。"},
+                    {"text": "times", "type": "stress", "tip": "落调", "link": false, "pause": "short", "ipa": "/taɪmz/", "mouth": "open", "detail": "/mz/尾音要有声带震动的延续感。"},
+                    
+                    {"text": "is", "type": "reduction", "tip": "z-m顺滑过渡", "link": true, "pause": "", "ipa": "/ɪz/", "mouth": "flat", "detail": "这里的s实际读浊辅音/z/。"},
+                    {"text": "merely", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ˈmɪrli/", "mouth": "flat", "detail": "重音在前，快速向卷舌音过渡。"},
+                    {"text": "repeating", "type": "stress", "tip": "闪音t变d", "link": false, "pause": "", "ipa": "/rɪˈpiːtɪŋ/", "mouth": "flat", "detail": "美音中夹在两元音间的/t/快速弹舌变为闪音/d/。"},
+                    {"text": "the", "type": "reduction", "tip": "弱读/ðə/", "link": false, "pause": "", "ipa": "/ðə/", "mouth": "flat", "detail": "极轻掠过。"},
+                    {"text": "same", "type": "stress", "tip": "m-m辅音同化", "link": true, "pause": "", "ipa": "/seɪm/", "mouth": "flat", "detail": "和下一个mistakes相同的/m/音合并，不用松开闭合。"},
+                    {"text": "mistakes", "type": "stress", "tip": "s不送气", "link": false, "pause": "", "ipa": "/mɪˈsteɪks/", "mouth": "closed", "detail": "/t/受到前方/s/压制，发生不送气清音浊化现象。"},
+                    {"text": "ten", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ten/", "mouth": "flat", "detail": "清晰重拍。"},
+                    {"text": "times", "type": "stress", "tip": "", "link": true, "pause": "", "ipa": "/taɪmz/", "mouth": "open", "detail": "顺滑滑向尾声。"},
+                    {"text": "over.", "type": "stress", "tip": "饱满尾音", "link": false, "pause": "long", "ipa": "/ˈoʊvər/", "mouth": "rounded", "detail": "句尾完全沉降下来，/r/完美卷舌收尾。"}
+                ]
+            }
+        ];
+
+        function renderBoard(data) {
+            const board = document.getElementById('training-board');
+            board.innerHTML = '';
+
+            data.forEach((item, sentenceIdx) => {
+                const card = document.createElement('div');
+                card.className = 'sentence-card';
+
+                // 核心流式排版区域
+                const flowZone = document.createElement('div');
+                flowZone.className = 'interactive-flow-zone';
+
+                let fullText = "";
+
+                item.words.forEach((w, wordIdx) => {
+                    fullText += w.text + " ";
+
+                    const wordCol = document.createElement('div');
+                    wordCol.className = 'word-column';
+                    if (w.link) wordCol.classList.add('link-next');
+
+                    if (w.tip && w.tip.trim() !== "") {
+                        const tipDiv = document.createElement('div');
+                        tipDiv.className = 'pronunciation-tip';
+                        tipDiv.innerText = w.tip;
+                        wordCol.appendChild(tipDiv);
+                    }
+
+                    const wordTextSpan = document.createElement('span');
+                    wordTextSpan.className = `word-text ${w.type}`;
+                    wordTextSpan.id = `word-${sentenceIdx}-${wordIdx}`;
+                    wordTextSpan.innerText = w.text;
+                    
+                    wordTextSpan.onclick = (e) => {
+                        e.stopPropagation();
+                        speakText(w.text, 0.75);
+                        
+                        card.querySelectorAll('.word-text').forEach(el => el.classList.remove('active-word'));
+                        wordTextSpan.classList.add('active-word');
+                        updateInspector(sentenceIdx, w);
+                    };
+
+                    wordCol.appendChild(wordTextSpan);
+                    flowZone.appendChild(wordCol);
+
+
+
+                    if (w.pause === 'short' || w.pause === 'long') {
+                        const pauseContainer = document.createElement('div');
+                        pauseContainer.className = 'pause-container';
+                        
+                        const pSpan = document.createElement('span');
+                        pSpan.className = w.pause === 'short' ? 'pause-short' : 'pause-long';
+                        pSpan.innerText = w.pause === 'short' ? '|' : '||';
+                        
+                        pauseContainer.appendChild(pSpan);
+                        flowZone.appendChild(pauseContainer);
+                    }
+                });
+
+                // 固定发音细节观察舱
+                const inspector = document.createElement('div');
+                inspector.className = `inspector-panel inspector-hidden`;
+                inspector.id = `inspector-${sentenceIdx}`;
+                inspector.innerHTML = `
+                    <div class="inspector-left">
+                        <div class="inspector-word" id="ins-word-${sentenceIdx}">Word</div>
+                        <div class="inspector-ipa" id="ins-ipa-${sentenceIdx}">/ipa/</div>
+                        <div class="inspector-desc" id="ins-desc-${sentenceIdx}">发音细节描述</div>
+                    </div>
+                `;
+
+                const transZone = document.createElement('div');
+                transZone.className = 'translation-zone';
+                transZone.innerText = "💡 意译参考： " + item.translation;
+
+                const ctrlPanel = document.createElement('div');
+                ctrlPanel.className = 'control-panel';
+                
+                const slowBtn = document.createElement('button');
+                slowBtn.className = 'btn btn-slow';
+                slowBtn.innerText = '🐢 慢速辨音示范';
+                slowBtn.onclick = () => speakText(fullText, 0.7, sentenceIdx, item.words);
+
+                const normalBtn = document.createElement('button');
+                normalBtn.className = 'btn';
+                normalBtn.innerText = '⚡ 常速连读跟读';
+                normalBtn.onclick = () => speakText(fullText, 0.95, sentenceIdx, item.words);
+
+                ctrlPanel.appendChild(slowBtn);
+                ctrlPanel.appendChild(normalBtn);
+
+                card.appendChild(flowZone);
+                card.appendChild(inspector);
+                card.appendChild(transZone);
+                card.appendChild(ctrlPanel);
+                board.appendChild(card);
+
+
+            });
+        }
+
+        // 发音数据细节更新舱
+        function updateInspector(sentenceIdx, wordData) { 
+            const panel = document.getElementById(`inspector-${sentenceIdx}`);
+            panel.classList.remove('inspector-hidden');
+
+            document.getElementById(`ins-word-${sentenceIdx}`).innerText = wordData.text.replace(/[^a-zA-Z']/g, "");
+            document.getElementById(`ins-ipa-${sentenceIdx}`).innerText = wordData.ipa || "/暂无音标/";
+            document.getElementById(`ins-desc-${sentenceIdx}`).innerText = wordData.detail || "多听标准示范，注意轻重读变化。";
+        }
+
+        // 系统朗读引擎 (支持逐词追踪高亮)
+        function speakText(text, rate, sentenceIdx = -1, wordsArr = []) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const cleanText = text.replace(/[|]/g, '').trim();
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.lang = 'en-US'; 
+                utterance.rate = rate;
+
+                // 绑定单词边界事件实现视觉追踪
+                if (sentenceIdx !== -1 && wordsArr.length > 0) {
+                    utterance.onboundary = (event) => {
+                        if (event.name === 'word') {
+                            let charCount = 0;
+                            for (let i = 0; i < wordsArr.length; i++) {
+                                const wordStr = wordsArr[i].text;
+                                // 判断当前播放字符位置落在哪个单词区间
+                                if (event.charIndex >= charCount && event.charIndex < charCount + wordStr.length + 1) {
+                                    const card = document.querySelectorAll('.sentence-card')[sentenceIdx];
+                                    if (card) {
+                                        card.querySelectorAll('.word-text').forEach(el => el.classList.remove('active-word'));
+                                        const target = document.getElementById(`word-${sentenceIdx}-${i}`);
+                                        if (target) {
+                                            target.classList.add('active-word');
+                                            updateInspector(sentenceIdx, wordsArr[i]);
+                                        }
+                                    }
+                                    break;
+                                }
+                                charCount += wordStr.length + 1; // +1 补偿拼合字符串时的空格
+                            }
+                        }
+                    };
+                }
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("当前系统暂时无法调用系统 TTS 发音引擎。");
+            }
+        }
+
+        // 安全降级防权限拦截的加载逻辑
+        async function loadClipboardData() {
+            let text = "";
+            try {
+                text = await navigator.clipboard.readText();
+            } catch(e) {
+                // 绕过 about:blank 沙箱拦截，弹出原生交互粘贴文本框
+                text = prompt("由于浏览器安全保护限制（当前处于沙箱环境），无法自动获取剪贴板。\n\n请在下方长按并【粘贴】由 AI 生成的发音 JSON：");
+            }
+
+            if (!text || !text.trim()) return;
+
+            try {
+                const parsed = JSON.parse(text.trim());
+                renderBoard(Array.isArray(parsed) ? parsed : [parsed]);
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            } catch(e) {
+                alert("数据格式解析失败，请确保复制了完整的代码块。错误: " + e.message);
+            }
+        }
+
+        window.onload = () => {
+            renderBoard(defaultData);
+        };
+    </script>
+</body>
+</html>

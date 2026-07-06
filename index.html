@@ -291,6 +291,66 @@
             border-top: 1px solid rgba(255,255,255,0.08);
             padding-top: 25px;
         }
+
+        /* 移动端适配优化 */
+        @media (max-width: 600px) {
+            .glass-container {
+                margin: 15px auto;
+                padding: 15px;
+                width: 94%;
+                box-sizing: border-box;
+            }
+            h1 {
+                font-size: 1.2rem;
+                margin-bottom: 20px;
+            }
+            .sentence-card {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            .word-text {
+                font-size: 1.05rem;
+                padding: 1px 3px;
+            }
+            .reduction {
+                font-size: 0.9rem;
+            }
+            .interactive-flow-zone {
+                row-gap: 26px;
+                column-gap: 2px;
+            }
+            .pronunciation-tip {
+                font-size: 0.65rem;
+                padding: 0 4px;
+                margin-bottom: 6px;
+            }
+            .link-next::after {
+                font-size: 1rem;
+                right: -4px;
+                bottom: -5px;
+            }
+            .inspector-panel {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 12px;
+            }
+            .inspector-word {
+                font-size: 1.1rem;
+            }
+            .inspector-ipa {
+                font-size: 0.95rem;
+            }
+            .control-panel {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+                padding: 12px;
+                text-align: center;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>

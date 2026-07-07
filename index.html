@@ -154,8 +154,46 @@
 
         .reduction {
             color: #e6edf3;
-            opacity: 0.35;
+            opacity: 0.25; /* 弱读字体变浅，不再添加任何三角符号，降低视觉疲劳 */
             font-size: 1.25rem;
+        }
+
+        /* 精准字母级音节块控制 */
+        .word-text {
+            display: inline-flex !important;
+            flex-direction: row !important;
+            position: relative;
+        }
+
+        .letter-chunk {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* 句重音/核心强调词 (Primary): 亮金橘色，稍微大一点，带发光效果 */
+        .letter-chunk.chunk-primary::after {
+            content: "▲";
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #f59e0b;
+            text-shadow: 0 0 6px rgba(245, 158, 11, 0.6);
+            pointer-events: none;
+        }
+
+        /* 词重音/一般强调词 (Secondary): 湖蓝色，更小更克制 */
+        .letter-chunk.chunk-secondary::after {
+            content: "▲";
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.55rem;
+            color: #06b6d4;
+            opacity: 0.7;
+            pointer-events: none;
         }
 
         /* 连读符号 */
@@ -377,37 +415,28 @@
     </div>
 
     <script>
-        // 初始化精选演示数据
+        // 初始化精选演示数据：演示全新的【精准音节级三角对齐】与【弱读纯视觉虚化】方案
         const defaultData = [
             {
                 "id": 1,
-                "translation": "如果你不有意识地去改变意群停顿的方式，你读十遍也只是把同样的错误重复十遍而已。",
+                "translation": "我们必须停止依赖直觉，而应该开始根据精准的数据指标来客观评估当前的业务进展。",
                 "words": [
-                    {"text": "If", "type": "reduction", "tip": "极弱极快", "link": true, "pause": "", "ipa": "/ɪf/", "mouth": "flat", "detail": "上下齿微咬下唇，快速滑向下一个词。"},
-                    {"text": "you", "type": "reduction", "tip": "弱读/ju/", "link": true, "pause": "", "ipa": "/ju/", "mouth": "rounded", "detail": "非重读，双唇收圆但极短促。"},
-                    {"text": "don't", "type": "stress", "tip": "t失去爆破", "link": false, "pause": "", "ipa": "/doʊnt/", "mouth": "closed", "detail": "舌尖顶住上齿龈准备发/t/，但不送气，直接憋住。"},
-                    {"text": "consciously", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ˈkɑːnʃəsli/", "mouth": "open", "detail": "重音在最前。/ʃ/音双唇微向前突出撅起。"},
-                    {"text": "change", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/tʃeɪndʒ/", "mouth": "open", "detail": "注意双元音/eɪ/饱满的滑动过程，尾音摩擦。"},
-                    {"text": "the", "type": "reduction", "tip": "弱读/ðə/", "link": false, "pause": "", "ipa": "/ðə/", "mouth": "flat", "detail": "舌尖必须试探性微吐、轻触上齿边缘。"},
-                    {"text": "way", "type": "stress", "tip": "w-j半元音连读", "link": true, "pause": "", "ipa": "/weɪ/", "mouth": "rounded", "detail": "双唇先收极小圆圈发/w/，无缝滑向下一个词。"},
-                    {"text": "you", "type": "reduction", "tip": "", "link": false, "pause": "", "ipa": "/ju/", "mouth": "rounded", "detail": "快速滑过。"},
-                    {"text": "pause,", "type": "stress", "tip": "留空换气", "link": false, "pause": "short", "ipa": "/pɔːz/", "mouth": "open", "detail": "双唇爆破后音落，短暂在这里划归一个意群。"},
-                    
-                    {"text": "reading", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ˈriːdɪŋ/", "mouth": "rounded", "detail": "发/r/时舌尖往后卷，双唇稍微撅起。"},
-                    {"text": "a", "type": "reduction", "tip": "弱读/ə/", "link": false, "pause": "", "ipa": "/ə/", "mouth": "flat", "detail": "嘴唇极度放松，发出极轻模糊的中央元音。"},
-                    {"text": "passage", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ˈpæsɪdʒ/", "mouth": "open", "detail": "梅花元音/æ/下巴拉开，嘴角两侧用力。"},
-                    {"text": "ten", "type": "stress", "tip": "n-t鼻音停顿", "link": false, "pause": "", "ipa": "/ten/", "mouth": "flat", "detail": "舌尖大面积贴住上齿龈，给鼻音收尾准备。"},
-                    {"text": "times", "type": "stress", "tip": "落调", "link": false, "pause": "short", "ipa": "/taɪmz/", "mouth": "open", "detail": "/mz/尾音要有声带震动的延续感。"},
-                    
-                    {"text": "is", "type": "reduction", "tip": "z-m顺滑过渡", "link": true, "pause": "", "ipa": "/ɪz/", "mouth": "flat", "detail": "这里的s实际读浊辅音/z/。"},
-                    {"text": "merely", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ˈmɪrli/", "mouth": "flat", "detail": "重音在前，快速向卷舌音过渡。"},
-                    {"text": "repeating", "type": "stress", "tip": "闪音t变d", "link": false, "pause": "", "ipa": "/rɪˈpiːtɪŋ/", "mouth": "flat", "detail": "美音中夹在两元音间的/t/快速弹舌变为闪音/d/。"},
-                    {"text": "the", "type": "reduction", "tip": "弱读/ðə/", "link": false, "pause": "", "ipa": "/ðə/", "mouth": "flat", "detail": "极轻掠过。"},
-                    {"text": "same", "type": "stress", "tip": "m-m辅音同化", "link": true, "pause": "", "ipa": "/seɪm/", "mouth": "flat", "detail": "和下一个mistakes相同的/m/音合并，不用松开闭合。"},
-                    {"text": "mistakes", "type": "stress", "tip": "s不送气", "link": false, "pause": "", "ipa": "/mɪˈsteɪks/", "mouth": "closed", "detail": "/t/受到前方/s/压制，发生不送气清音浊化现象。"},
-                    {"text": "ten", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ten/", "mouth": "flat", "detail": "清晰重拍。"},
-                    {"text": "times", "type": "stress", "tip": "", "link": true, "pause": "", "ipa": "/taɪmz/", "mouth": "open", "detail": "顺滑滑向尾声。"},
-                    {"text": "over.", "type": "stress", "tip": "饱满尾音", "link": false, "pause": "long", "ipa": "/ˈoʊvər/", "mouth": "rounded", "detail": "句尾完全沉降下来，/r/完美卷舌收尾。"}
+                    {"text": "We", "type": "reduction", "tip": "", "link": false, "pause": "", "ipa": "/wi/", "detail": "弱读，滑过即可。", "chunks": [{"t": "We"}]},
+                    {"text": "must", "type": "reduction", "tip": "t失爆", "link": false, "pause": "", "ipa": "/məs/", "detail": "弱读且结尾/t/完全失去爆破，只留舌位。", "chunks": [{"t": "must"}]},
+                    {"text": "stop", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/stɑːp/", "detail": "单音节词重读，无需在特定字母下加三角。", "chunks": [{"t": "stop"}]},
+                    {"text": "relying", "type": "stress", "tip": "", "link": true, "pause": "", "ipa": "/rɪˈlaɪɪŋ/", "detail": "多音节词，重音在ly音节上，在其下方精准对齐三角。", "chunks": [{"t": "re"}, {"t": "ly", "focus": true}, {"t": "ing"}]},
+                    {"text": "on", "type": "reduction", "tip": "", "link": false, "pause": "", "ipa": "/ɑːn/", "detail": "弱读，融入前面的连读中。", "chunks": [{"t": "on"}]},
+                    {"text": "intuition,", "type": "stress", "tip": "", "link": false, "pause": "short", "ipa": "/ˌɪntuˈɪʃn/", "detail": "主重音在ti音节上，在其下方精准显示三角标记。", "chunks": [{"t": "intu"}, {"t": "i", "focus": true}, {"t": "tion,"}]},
+                    {"text": "and", "type": "reduction", "tip": "d失爆", "link": false, "pause": "", "ipa": "/ən/", "detail": "极弱，/d/不发音。", "chunks": [{"t": "and"}]},
+                    {"text": "start", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/stɑːrt/", "detail": "清晰重拍。", "chunks": [{"t": "start"}]},
+                    {"text": "evaluating", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ɪˈvæljueɪtɪŋ/", "detail": "重音在va音节，精准标记其下方的三角。", "chunks": [{"t": "e"}, {"t": "va", "focus": true}, {"t": "luating"}]},
+                    {"text": "business", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/ˈbɪznəs/", "detail": "重音在首音节bu。", "chunks": [{"t": "bu", "focus": true}, {"t": "siness"}]},
+                    {"text": "metrics", "type": "stress", "tip": "", "link": false, "pause": "short", "ipa": "/ˈmetrɪks/", "detail": "重音在met音节。", "chunks": [{"t": "met", "focus": true}, {"t": "rics"}]},
+                    {"text": "based", "type": "stress", "tip": "d-o连读", "link": true, "pause": "", "ipa": "/beɪst/", "detail": "尾辅音/t/直接与后面的元音连读。", "chunks": [{"t": "based"}]},
+                    {"text": "on", "type": "reduction", "tip": "", "link": false, "pause": "", "ipa": "/ɑːn/", "detail": "弱读。", "chunks": [{"t": "on"}]},
+                    {"text": "objective", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/əbˈdʒektɪv/", "detail": "重音在jec音节，对齐三角。", "chunks": [{"t": "ob"}, {"t": "jec", "focus": true}, {"t": "tive"}]},
+                    {"text": "performance", "type": "stress", "tip": "", "link": false, "pause": "", "ipa": "/pərˈfɔːrməns/", "detail": "重音在for音节。", "chunks": [{"t": "per"}, {"t": "for", "focus": true}, {"t": "mance"}]},
+                    {"text": "data.", "type": "stress", "tip": "", "link": false, "pause": "long", "ipa": "/ˈdeɪtə/", "detail": "完美降调落幕。", "chunks": [{"t": "da", "focus": true}, {"t": "ta."}]}
                 ]
             }
         ];
@@ -445,6 +474,24 @@
                     wordTextSpan.id = `word-${sentenceIdx}-${wordIdx}`;
                     wordTextSpan.innerText = w.text;
                     
+                    // 拼装音节级别的子级元素结构
+                    if (w.chunks && w.chunks.length > 0) {
+                        wordTextSpan.innerText = ""; // 清空原有纯文本
+                        w.chunks.forEach(ck => {
+                            const chunkSpan = document.createElement('span');
+                            chunkSpan.className = 'letter-chunk';
+                            if (ck.focus === 'primary') {
+                                chunkSpan.classList.add('chunk-primary');
+                            } else if (ck.focus === 'secondary' || ck.focus === true) {
+                                chunkSpan.classList.add('chunk-secondary');
+                            }
+                            chunkSpan.innerText = ck.t;
+                            wordTextSpan.appendChild(chunkSpan);
+                        });
+                    } else {
+                        wordTextSpan.innerText = w.text;
+                    }
+
                     wordTextSpan.onclick = (e) => {
                         e.stopPropagation();
                         speakText(w.text, 0.75);

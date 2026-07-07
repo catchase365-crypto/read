@@ -323,6 +323,15 @@
             box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
         }
 
+        .btn-fast {
+            background: rgba(236, 72, 153, 0.15);
+            border: 1px solid #ec4899;
+        }
+        .btn-fast:hover {
+            background: #ec4899;
+            box-shadow: 0 0 12px rgba(236, 72, 153, 0.4);
+        }
+
         /* 数据输入区 */
         .data-input-zone {
             margin-top: 40px;
@@ -548,8 +557,14 @@
                 normalBtn.innerText = '⚡ 常速连读跟读';
                 normalBtn.onclick = () => speakText(fullText, 0.95, sentenceIdx, item.words);
 
+                const fastBtn = document.createElement('button');
+                fastBtn.className = 'btn btn-fast';
+                fastBtn.innerText = '🚀 快速流利挑战';
+                fastBtn.onclick = () => speakText(fullText, 1.3, sentenceIdx, item.words);
+
                 ctrlPanel.appendChild(slowBtn);
                 ctrlPanel.appendChild(normalBtn);
+                ctrlPanel.appendChild(fastBtn);
 
                 card.appendChild(flowZone);
                 card.appendChild(inspector);
